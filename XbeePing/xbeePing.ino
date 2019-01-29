@@ -13,6 +13,8 @@ Hardware Hookup:
 *****************************************************************/
 // We'll use SoftwareSerial to communicate with the XBee:
 #include <SoftwareSerial.h>
+// For server communication
+#include "Servo.h"
 
 //For Atmega328P's
 // XBee's DOUT (TX) is connected to pin 2 (Arduino's Software RX)
@@ -28,6 +30,11 @@ String msg;
 char buf[80];
 int codeLength;
 
+// For Servo
+Servo noseServo;
+int servoPin = 5;
+int noseDegrees = 109; 
+
 void setup()
 {
   // Set up both ports at 9600 baud. This value is most important
@@ -35,6 +42,8 @@ void setup()
   // setting of your XBee.
   XBee.begin(9600);
   Serial.begin(9600);
+
+  noseServo.attach(servoPin);
 }
 
 void loop()
@@ -50,6 +59,14 @@ void loop()
     msg = msg.substring(0, codeLength);
     if(msg == "PING"){
       XBee.write("Pong\n");
+    }
+    if(msg == "Open Nosecone"){
+      //rotate servo noseDegrees degrees
+      noseServo.write(noseDegrees);
+    }
+    if(msg == "Close Nosecone"){
+      //rotate to 0
+      noseServo.write(0);
     }
     Serial.write(XBee.read());
   }
