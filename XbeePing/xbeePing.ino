@@ -26,6 +26,12 @@ SoftwareSerial XBee(2, 3); // RX, TX
 // XBee's DIN (RX) is connected to pin 11 (Arduino's Software TX)
 //SoftwareSerial XBee(10, 11); // RX, TX
 
+
+// Addresses
+// XBEE 1: PANID:3332, DH:0, DL:2FCD, MY:1FCD
+// XBEE 2: PANID:3332, DH:0, DL:2FCD, MY:1FCE
+// COM XBEE: PANID:3332, DH:0, DL:FFFF, MY:2FCD
+
 String msg;
 char buf[80];
 int codeLength;
@@ -44,6 +50,7 @@ void setup()
   Serial.begin(9600);
 
   noseServo.attach(servoPin);
+  Serial.println("Setup complete.");
 }
 
 void loop()
@@ -57,8 +64,12 @@ void loop()
     codeLength = XBee.readBytesUntil(0x0D, buf, 80);
     msg = buf;
     msg = msg.substring(0, codeLength);
-    if(msg == "PING"){
-      XBee.write("Pong\n");
+    Serial.println(msg); // Read the msg
+    if(msg == "PING1"){
+      XBee.write("Pong1\n");
+    }
+    if(msg == "PING2"){
+      XBee.write("Pong2\n");
     }
     if(msg == "Open Nosecone"){
       //rotate servo noseDegrees degrees
