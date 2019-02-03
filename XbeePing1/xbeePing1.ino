@@ -59,6 +59,9 @@ void loop()
   { // If data comes in from serial monitor, send it out to XBee
     XBee.write(Serial.read());
   }
+  XBee.write("Tx1");
+  delay(100);
+  /*
   if (XBee.available())
   { // If data comes in from XBee, send it out to serial monitor
     codeLength = XBee.readBytesUntil(0x0D, buf, 80);
@@ -78,5 +81,6 @@ void loop()
     }
     Serial.write(XBee.read());
   }
+  */
 }
 
