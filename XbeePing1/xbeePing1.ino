@@ -39,7 +39,8 @@ int codeLength;
 // For Servo
 Servo noseServo;
 int servoPin = 5;
-int noseDegrees = 25; 
+int noseDegrees = 0;
+int noseCloesDegrees = 34;
 
 void setup()
 {
@@ -48,7 +49,7 @@ void setup()
   // setting of your XBee.
   XBee.begin(9600);
   Serial.begin(9600);
-  noseServo.write(0);
+  noseServo.write(noseCloesDegrees);
   pinMode(10, OUTPUT);
   digitalWrite(10, HIGH);
   pinMode(11, INPUT);
@@ -77,10 +78,12 @@ void loop()
     if(msg == "Open Nosecone"){
       //rotate servo noseDegrees degrees
       noseServo.write(noseDegrees);
+      XBee.write("NoseCone Opened");
     }
     if(msg == "Close Nosecone"){
       //rotate to 0
-      noseServo.write(0);
+      noseServo.write(noseCloesDegrees);
+      XBee.write("NoseCone Closed");
     }
     Serial.write(XBee.read());
   }
@@ -89,7 +92,7 @@ void loop()
     noseServo.write(noseDegrees);
   }
   if (digitalRead(12) != LOW) {
-    noseServo.write(0);
+    noseServo.write(noseCloesDegrees);
   }
 }
 
