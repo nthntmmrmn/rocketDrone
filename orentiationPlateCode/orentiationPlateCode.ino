@@ -51,19 +51,19 @@ String msg;
 char buf[80];
 int codeLength;
 
-bool rotate = false;
+bool rotate1 = false;
 sensors_event_t event; 
 void setup() {
     // Set up both ports at 9600 baud. This value is most important
     // for the XBee. Make sure the baud rate matches the config
     // setting of your XBee.
-    //XBee.begin(9600);
+    XBee.begin(9600);
     delay(1000);
     Serial.begin(9600);
     delay(1000);
-    //Serial.println("Setup complete.");
+    Serial.println("Setup complete.");
     //initializes stepper motor
-    //stepper.begin(RPM, MICROSTEPS);
+    stepper.begin(RPM, MICROSTEPS);
    
 
     /* Initialise the sensor */
@@ -90,15 +90,15 @@ void loop() {
       msg = msg.substring(0, codeLength);
       Serial.println(msg); // Read the msg
 
-      //start rotate proceedure
+      //start rotate1 proceedure
       if(msg == "ROTATE"){
         XBee.write("Okay, rotating.");
-        rotate = true;
+        rotate1 = true;
         Serial.write("Okay, rotating.");
       } 
     }
 
-    if (rotate) {
+    if (rotate1) {
       //but new data into event
       
       bno.getEvent(&event);
@@ -127,7 +127,7 @@ void loop() {
           delay(100);
         }
       }else{
-        rotate = false;
+        rotate1 = false;
         XBee.write("Done Rotating!!");
         Serial.print("Done Rotating!!");
       }
