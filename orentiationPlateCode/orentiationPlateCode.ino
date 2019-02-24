@@ -20,12 +20,12 @@
 
 // Motor steps per revolution. Most steppers are 200 steps or 1.8 degrees/step
 #define MOTOR_STEPS 200
-#define RPM 20
+#define RPM 600
 
 // Since microstepping is set externally, make sure this matches the selected mode
 // If it doesn't, the motor will move at a different RPM than chosen
 // 1=full step, 2=half step etc.
-#define MICROSTEPS 4
+#define MICROSTEPS 1
 
 // All the wires needed for full functionality
 #define DIR 4
@@ -65,10 +65,9 @@ void setup() {
     delay(10);
     Serial.begin(9600);
     delay(10);
-
-    // solenoid valve
-    pinMode(solenoidPin, OUTPUT); 
     
+     pinMode(solenoidPin, OUTPUT); 
+     
     //initializes stepper motor
     stepper.begin(RPM, MICROSTEPS);
    
@@ -138,12 +137,14 @@ void loop() {
         
       
         // rotates plate, might have to switch negative sign
-        if(event.orientation.x < 180){
-          stepper.rotate(event.orientation.x/8);
-          delay(100);
+        if(event.orientation.x > 180){
+          stepper.rotate(event.orientation.x*27*2);
+          
+          
         }else{
-          stepper.rotate(-1* event.orientation.x/8);
-          delay(100);
+          //stepper.rotate(360*27);
+          stepper.rotate(-1* event.orientation.x*27*2);
+          
         }
       }else{
         rotate1 = false;
