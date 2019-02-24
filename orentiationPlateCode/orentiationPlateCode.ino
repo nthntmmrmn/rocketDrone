@@ -31,6 +31,9 @@
 #define DIR 4
 #define STEP 3
 
+// PIN 2 to turn on solenoid valve
+int solenoidPin = 2;
+
 
 // 2-wire basic config, microstepping is hardwired on the driver
 BasicStepperDriver stepper(MOTOR_STEPS, DIR, STEP);
@@ -62,7 +65,9 @@ void setup() {
     delay(10);
     Serial.begin(9600);
     delay(10);
-    
+
+    // solenoid valve
+    pinMode(solenoidPin, OUTPUT); 
     
     //initializes stepper motor
     stepper.begin(RPM, MICROSTEPS);
@@ -103,10 +108,15 @@ void loop() {
 
       //start rotate1 proceedure
       if(msg == "ROTATE"){
-        XBee.write("Okay, rotating.");
+        XBee.write("Okay, rotating. Mass matrix diagonized: ready for jump!\n");
         rotate1 = true;
         Serial.write("Okay, rotating.");
-      } 
+      }
+      if(msg == "LetTheDogsOut") {
+        digitalWrite(solenoidPin, HIGH);  
+        XBee.write("Solenoid open: Dogs are out\n");
+        Serial.write("Solenoid open.");
+      }
     }
     if (rotate1) {
       //but new data into event
@@ -137,7 +147,7 @@ void loop() {
         }
       }else{
         rotate1 = false;
-        XBee.write("Done Rotating!!");
+        XBee.write("Done Rotating!! Hamster is in the wheel.\n");
         Serial.print("Done Rotating!!");
       }
     }
