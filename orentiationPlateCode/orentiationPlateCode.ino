@@ -11,6 +11,7 @@
 #include <Arduino.h>
 #include <Adafruit_BNO055.h>
 #include <Adafruit_Sensor.h>
+#include <utility/imumaths.h>
 #include "BasicStepperDriver.h"
 
 // We'll use SoftwareSerial to communicate with the XBee:
@@ -34,13 +35,13 @@
 // 2-wire basic config, microstepping is hardwired on the driver
 BasicStepperDriver stepper(MOTOR_STEPS, DIR, STEP);
 
-Adafruit_BNO055 bno = Adafruit_BNO055(55);
+Adafruit_BNO055 bno = Adafruit_BNO055();
 
 
 //For Atmega328P's
 // XBee's DOUT (TX) is connected to pin 2 (Arduino's Software RX)
 // XBee's DIN (RX) is connected to pin 3 (Arduino's Software TX)
-SoftwareSerial XBee(2, 3); // RX, TX
+SoftwareSerial XBee(9, 10); // RX, TX
 
 // Addresses
 // XBEE 1: PANID:3332, DH:0, DL:2FCD, MY:1FCD
@@ -58,10 +59,11 @@ void setup() {
     // for the XBee. Make sure the baud rate matches the config
     // setting of your XBee.
     XBee.begin(9600);
-    delay(1000);
+    delay(10);
     Serial.begin(9600);
-    delay(1000);
-    Serial.println("Setup complete.");
+    delay(10);
+    
+    
     //initializes stepper motor
     stepper.begin(RPM, MICROSTEPS);
    
@@ -71,17 +73,26 @@ void setup() {
     {
       /* There was a problem detecting the BNO055 ... check your connections */
       Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-      while(1);
+      //while(1);
     } 
   
-    delay(1000);
     
     bno.setExtCrystalUse(true);
+
+//    //calibrates rpobs dont need this though
+//    uint8_t system1, gyro, accel, mag;
+//    system1 = gyro = accel = mag = 0;
+//    while(gyro == 0){
+//      delay(1);
+//      bno.getCalibration(&system1, &gyro, &accel, &mag);
+//      Serial.print(gyro, DEC);
+//    }
     
+    Serial.println("Setup complete.");
+    delay(1000);
 }
 
 void loop() {
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     if (XBee.available())
     { 
       // gets message from Xbee and put it into msg
@@ -97,7 +108,6 @@ void loop() {
         Serial.write("Okay, rotating.");
       } 
     }
-
     if (rotate1) {
       //but new data into event
       
@@ -115,7 +125,6 @@ void loop() {
         Serial.print(event.orientation.z, 4);
         Serial.println("");
         
-        delay(100);
         
       
         // rotates plate, might have to switch negative sign
