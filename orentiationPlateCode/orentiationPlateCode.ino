@@ -30,9 +30,14 @@
 // All the wires needed for full functionality
 #define DIR 4
 #define STEP 3
+#define SLEEP 8
+
+//motor closed loop multiplier
+int motorMultiplier = 27*2;
 
 // PIN 2 to turn on solenoid valve
 int solenoidPin = 2;
+
 
 
 // 2-wire basic config, microstepping is hardwired on the driver
@@ -67,6 +72,8 @@ void setup() {
     delay(10);
     
      pinMode(solenoidPin, OUTPUT); 
+     pinMode(SLEEP, OUTPUT); 
+     digitalWrite(SLEEP, LOW);
      
     //initializes stepper motor
     stepper.begin(RPM, MICROSTEPS);
@@ -104,26 +111,39 @@ void loop() {
       msg = buf;
       msg = msg.substring(0, codeLength);
       Serial.println(msg); // Read the msg
-
+      if(msg == "PING2") {
+        XBee.write("PONG2\n");
+      }
       //start rotate1 proceedure
       if(msg == "ROTATE"){
         XBee.write("Okay, rotating. Mass matrix diagonized: ready for jump!\n");
         rotate1 = true;
         Serial.write("Okay, rotating.");
       }
+      if(msg == "Stop rotate"){
+        XBee.write("Okay, stopped rotating.\n");
+        rotate1 = false;
+        Serial.write("Okay, stopped rotating.");
+      }
       if(msg == "LetTheDogsOut") {
         digitalWrite(solenoidPin, HIGH);  
         XBee.write("Solenoid open: Dogs are out\n");
         Serial.write("Solenoid open.");
       }
+      if(msg == "PutDogsBackIn") {
+        digitalWrite(solenoidPin, LOW);  
+        XBee.write("Solenoid closed: Dogs are back in\n");
+        Serial.write("Solenoid closed.");
+      }
     }
     if (rotate1) {
       //but new data into event
-      
+      digitalWrite(SLEEP, HIGH);
       bno.getEvent(&event);
-
+      Serial.print("\t every Y: ");
+        Serial.print(event.orientation.y, 4);
       //checks to see if platform is flat enough
-      if(event.orientation.x >= 5 && event.orientation.x <= 355) {
+      if(event.orientation.y >= 5 || event.orientation.y <= -5) {
         
         /* Display the floating point data */
         Serial.print("X: ");
@@ -137,19 +157,20 @@ void loop() {
         
       
         // rotates plate, might have to switch negative sign
-        if(event.orientation.x > 180){
-          stepper.rotate(event.orientation.x*27*2);
+        if(event.orientation.y > 180){
+          stepper.rotate(event.orientation.y*motorMultiplier);
           
           
         }else{
           //stepper.rotate(360*27);
-          stepper.rotate(-1* event.orientation.x*27*2);
+          stepper.rotate(-1* event.orientation.y*motorMultiplier);
           
         }
       }else{
         rotate1 = false;
         XBee.write("Done Rotating!! Hamster is in the wheel.\n");
         Serial.print("Done Rotating!!");
+        digitalWrite(SLEEP, LOW);
       }
     }
 }

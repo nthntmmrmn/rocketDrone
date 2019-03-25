@@ -49,7 +49,6 @@ void setup()
   // setting of your XBee.
   XBee.begin(9600);
   Serial.begin(9600);
-  noseServo.write(noseCloesDegrees);
   pinMode(10, OUTPUT);
   digitalWrite(10, HIGH);
   pinMode(11, INPUT);
